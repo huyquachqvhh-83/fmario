@@ -55,7 +55,7 @@ function sfxTrap()       { playTone(120, 0.4, 'sawtooth', 0.4, -80); }
 function sfxTeleport()   { [1200, 900, 600, 300].forEach((f, i) => setTimeout(() => playTone(f, 0.06, 'sine', 0.3), i * 30)); }
 function sfxShield()     { playTone(700, 0.15, 'sine', 0.3, 300); }
 function sfxKill()       { playTone(80, 0.3, 'sawtooth', 0.4, -40); }
-
+function sfxScore()      { playTone(660, 0.1, 'square', 0.28); setTimeout(() => playTone(990, 0.12, 'square', 0.28), 60); }
 // ==================== NHẠC NỀN ====================
 function playMusicForLevel(level) {
     let id;

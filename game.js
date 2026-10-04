@@ -899,14 +899,6 @@ function loadLevel10() {
 // ==================== DISPATCHER ====================
 const LEVELS = [null, loadLevel1, loadLevel2, loadLevel3, loadLevel4, loadLevel5, loadLevel6, loadLevel7, loadLevel8, loadLevel9, loadLevel10];
 
-function loadLevel(n) {
-    if (n < 1) n = 1; if (n > 10) n = 10;
-    particles = []; dust = []; rings = []; deathMarkers = []; floatTexts = [];
-    popups = []; projectiles = []; finishLock = false;
-    LEVELS[n]();
-    updateCamY();
-    if (state === 'PLAYING') playMusicLoop(n);
-}
 
 // ==================== PARTICLES ====================
 function fx(x, y, color, n, spd = 6) {
@@ -949,7 +941,7 @@ function startGame() {
     state = 'PLAYING';
     playMusicForLevel(1);
 }
-function restartGame() { showScreen(''); reset(); loadLevel(currentLevel); state = 'PLAYING'; runFrames = 0; }
+function restartGame() { showScreen(''); reset(); loadLevel(currentLevel); state = 'PLAYING'; runFrames = 0; playMusicForLevel(currentLevel);}
 function returnToMenu() { showScreen('menu-screen'); state = 'MENU'; stopMusic(); }
 function applyUpgrades() {
     player.maxHp = 3 + upgrades.maxHp;
@@ -974,13 +966,10 @@ function reset() {
     projectiles = []; updateCamY();
 }
 function die(reason) {
-    
     if (godMode) return;
-    stopMusic(); sfxDie();
     if (state === 'GAMEOVER') return;
-    stopMusic();
+    stopMusic(); sfxDie();
     state = 'GAMEOVER'; totalDeaths++;
-     sfxDie();
     shake = 25; flash = 0.7; flashColor = '#ff4757'; deathSlowmo = 60;
     wallet += player.coins; saveProgress();
     for (let i = 0; i < 40; i++) {
@@ -1620,7 +1609,7 @@ function update() {
             if (it.type === 'coin') { player.coins++; player.score += 100; sfxCoin(); fx(it.x + 10, it.y + 10, '#ffd700', 8); ring(it.x + 11, it.y + 11, '#ffd700', 25); }
             else if (it.type === 'star') { player.stars++; player.score += 1000; sfxStar(); fx(it.x + 12, it.y + 12, '#fffa65', 16); ring(it.x + 13, it.y + 13, '#fffa65', 45); floatText(it.x + 12, it.y - 10, '+1000', '#fffa65'); }
             else if (it.type === 'heart') {
-                if (player.hp < player.maxHp) { player.hp++; sfxHeart(); floatText(it.x + 12, it.y - 10, '+1 HP', '#ff4757'); }
+                if (player.hp < player.maxHp) { player.hp++; sfxScore(); floatText(it.x + 12, it.y - 10, '+1 HP', '#ff4757'); }
                 else { player.score += 500; sfxScore(); floatText(it.x + 12, it.y - 10, '+500', '#ff4757'); }
                 fx(it.x + 12, it.y + 12, '#ff4757', 16);
             }
@@ -2608,21 +2597,6 @@ updateUserBar();
         btn.onclick = openUpgradeScreen;
         container.insertBefore(btn, container.children[1] || null);
     }
-})();
-(function initVolumeUI() {
-    const mv = document.getElementById('music-vol');
-    const sv = document.getElementById('sfx-vol');
-    if (mv) {
-        mv.value = musicVolume;
-        mv.addEventListener('input', () => setMusicVolume(parseFloat(mv.value)));
-    }
-    if (sv) {
-        sv.value = sfxVolume;
-        sv.addEventListener('input', () => setSfxVolume(parseFloat(sv.value)));
-    }
-    // Lần đầu click để unlock audio (browser chặn autoplay)
-
-    document.addEventListener('click', () => initAudio(), { once: true });
 })();
 (function initVolumeUI() {
     const mv = document.getElementById('music-vol');

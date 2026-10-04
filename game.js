@@ -64,13 +64,17 @@ function playMusicForLevel(level) {
     else if (level <= 9) id = 'bgm3';
     else id = 'bgm4';
 
-    // Dừng nhạc cũ
     document.querySelectorAll('audio').forEach(a => { a.pause(); a.currentTime = 0; });
 
     const bgm = document.getElementById(id);
     if (!bgm) { console.warn('Thiếu file ' + id + '.mp3'); return; }
     bgm.volume = musicVolume;
-    bgm.play().catch(e => console.warn('Không phát được nhạc:', e));
+    bgm.play().catch(e => {
+        console.warn('Không phát được nhạc:', e);
+        // Thử lại sau khi user click
+        const retry = () => { bgm.play().catch(() => {}); document.removeEventListener('click', retry); };
+        document.addEventListener('click', retry);
+    });
     currentBgm = bgm;
 }
 
@@ -941,7 +945,15 @@ function startGame() {
     state = 'PLAYING';
     playMusicForLevel(1);
 }
-function restartGame() { showScreen(''); reset(); loadLevel(currentLevel); state = 'PLAYING'; runFrames = 0; playMusicForLevel(currentLevel);}
+function restartGame() {
+    initAudio();
+    showScreen('');
+    reset();
+    loadLevel(currentLevel);
+    state = 'PLAYING';
+    runFrames = 0;
+    playMusicForLevel(currentLevel);
+}
 function returnToMenu() { showScreen('menu-screen'); state = 'MENU'; stopMusic(); }
 function applyUpgrades() {
     player.maxHp = 3 + upgrades.maxHp;

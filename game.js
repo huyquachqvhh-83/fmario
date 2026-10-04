@@ -2593,7 +2593,22 @@ function draw() {
 }
 
 // ==================== LOOP ====================
-function gameLoop() { update(); draw(); requestAnimationFrame(gameLoop); }
+let lastFrameTime = 0;
+const FRAME_DURATION = 1000 / 60;  // 60 FPS
+
+function gameLoop(timestamp) {
+    if (!timestamp) timestamp = performance.now();
+    const elapsed = timestamp - lastFrameTime;
+
+    if (elapsed >= FRAME_DURATION) {
+        lastFrameTime = timestamp - (elapsed % FRAME_DURATION);
+        update();
+        draw();
+    }
+
+    requestAnimationFrame(gameLoop);
+}
+
 resize();
 updateUserBar();
 
@@ -2610,6 +2625,7 @@ updateUserBar();
         container.insertBefore(btn, container.children[1] || null);
     }
 })();
+
 (function initVolumeUI() {
     const mv = document.getElementById('music-vol');
     const sv = document.getElementById('sfx-vol');
@@ -2621,5 +2637,8 @@ updateUserBar();
         sv.value = sfxVolume;
         sv.addEventListener('input', () => setSfxVolume(parseFloat(sv.value)));
     }
+    document.addEventListener('click', () => initAudio(), { once: true });
 })();
-gameLoop();
+
+// Khởi động game
+requestAnimationFrame(gameLoop);
